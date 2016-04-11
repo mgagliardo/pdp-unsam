@@ -122,16 +122,13 @@ type Armadora = [Ingrediente] -> [Ingrediente]
 -- fromIntegral :: (Integral a, Num b) => a -> b
 
 directo :: Armadora
-directo ingredientes = (agregarTodoMenosHielo ingredientes) ++ (agregarCantidadHielo ingredientes)
+directo ingredientes =  (agregarIngredientes ingredientes) ++ (agregarCantidadHielo (truncate calcularCantidad ingredientes) ingredientes)
 
-agregarTodoMenosHielo :: Armadora
-agregarTodoMenosHielo = filter (not . sosHielo)
+agregarIngredientes :: Armadora
+agregarIngredientes = filter (not . sosHielo)
 
 sosHielo :: Ingrediente -> Bool
 sosHielo ing = (nombre ing) == "hielo"
-
-agregarCantidadHielo :: Armadora
-agregarCantidadHielo lista = [UnIngrediente "hielo" 0 0 0 (calcularCantidad lista)]
 
 calcularCantidad :: [Ingrediente] -> Float
 calcularCantidad = sum . (map cant) . sonHielos
@@ -145,30 +142,51 @@ sonHielos ingredientes = filter sosHielo ingredientes
 --Al ponerle azúcar todos los ingredientes se condimentan con azucar (ya declarada en el sistema).
 
 licuadora :: Armadora
-licuadora = batir . agregarHielo50 . agregarAzucar
+licuadora = batir . (agregarCantidadHielo 50) . agregarAzucar
 
 agregarAzucar :: [Ingrediente] -> [Ingrediente]
 agregarAzucar = map (condimentar azucar)
 
-agregarHielo50 :: [Ingrediente] -> [Ingrediente]
-agregarHielo50 ingredientes = ingredientes ++ [UnIngrediente "hielo" 0 0 0 50]
+agregarCantidadHielo cantidad ingredientes = ingredientes ++ [UnIngrediente "hielo" 0 0 0 cantidad]
 
 --coctelera: Se indica al hacer el trago si se sirve flambeado o no
 --y cuántos segundos se debe agitar el trago antes de servirlo.
 
-coctelera
+
+-- coctelera False segundos ingredientes
+-- | (even (truncate segundos)) = licuadora ingredientes
+-- | otherwise = [UnIngrediente "hielo" 0 0 0 20] ++ ingredientes
+-- 5 unidades más colorido y pierda un décimo
+-- de los segundos que se agita.
 
 
 
-coctelera :: Bool -> Float -> Armadora
+-- En caso de que se sirva flambeado, el primer componente cambia perdiendo la mitad de su alcohol
+-- volviéndose 2 unidades más dulces, 5 unidades más colorido y pierda un décimo de los segundos que se agita. 
+
+coctelera :: Bool -> Float -> [Ingrediente] -> [Ingrediente]
 coctelera True segundos (primerIngrediente:restoDeIngredientes) = (flambearIngrediente primerIngrediente segundos):restoDeIngredientes
 
-coctelera False segundos ingredientes
-| (even (truncate segundos)) = licuadora ingredientes
-| otherwise = [UnIngrediente "hielo" 0 0 0 20] ++ ingredientes
+coctelera False segundos ingredientes 	| (even (truncate segundos)) = licuadora ingredientes
+										| otherwise = ingredientes 
 
 flambearIngrediente :: Ingrediente -> Float -> Ingrediente
-flambearIngrediente ingrediente segundos = UnIngrediente (nombre ingrediente) (dulzura ingrediente +2) ((alcohol ingrediente)/2) (color ingrediente +5) (cant ingrediente - (segundos/10))
+flambearIngrediente ingrediente segundos = UnIngrediente (nombre ingrediente) (dulzura ingrediente +2) ((alcohol ingrediente) * 0.5) (color ingrediente +5) (cant ingrediente - (segundos * 0.1))
+
+
+-- | (even (truncate segundos)) = licuadora ingredientes
+-- | otherwise = [UnIngrediente "hielo" 0 0 0 20] ++ ingredientes
+-- 5 unidades más colorido y pierda un décimo
+-- de los segundos que se agita.
+
+
+
+-- De lo contrario, si la cantidad de segundos es 
+-- par tiene el mismo efecto que hacerlo en licuadora, sino se sirve agregando 2 hielos.
+
+
+
+
 
 
 
