@@ -57,10 +57,13 @@ nombresDeActores = map nombreActor
 -- >quienesActuaronEn "V" "lost" 
 -- ["Elizabeth Mitchell"]
 
+quienesActuaronEn :: String -> String -> [String]
 quienesActuaronEn nombreSerie1 nombreSerie2 = nombresDeActores (trabajaronEn nombreSerie1 nombreSerie2)
 
+trabajaronEn :: String -> String -> [Actor]
 trabajaronEn nombreSerie1 nombreSerie2 = filter (trabajoEnLasDosPeliculas nombreSerie1 nombreSerie2) actores
 
+trabajoEnLasDosPeliculas :: String -> String -> Actor -> Bool
 trabajoEnLasDosPeliculas nombreSerie1 nombreSerie2 actor = (actorTrabajoEn nombreSerie1 actor) && (actorTrabajoEn nombreSerie2 actor)
 
 -- Poder determinar el año de una serie en base a su nombre
@@ -92,6 +95,7 @@ estaOrdenada (x:y:xs)= x<=y && estaOrdenada (y:xs)
 -- Queremos saber cuáles son las series que cumplen un determinado criterio.
 -- Tenemos esta función.
 
+
 queSeriesCumplen unCriterio = map serie . filter unCriterio
 
 -- Utilizar la función para resolver: 
@@ -116,10 +120,13 @@ queSeriesCumplen unCriterio = map serie . filter unCriterio
 -- >promedioGeneral 
 -- 4 (6 + 6 + 4 + 3 + 3 + 7 = 29 / 6 series, en división entera me da 4) 
 
+promedioGeneral :: Int
 promedioGeneral = promedioPor temporadas
 
+sumaListaConParametro :: Num c => (a -> c) -> [a] -> c
 sumaListaConParametro param = sum . map param
 
+cantidadDeSeries :: Int
 cantidadDeSeries = length series
 
 -- Agregar como parámetro una función que devuelva un valor al cual se le calcule el 
@@ -130,10 +137,10 @@ cantidadDeSeries = length series
 -- >promedio anioFin where anioFin serie = anioComienzo serie + temporadas serie  
 -- 2009 (2005 + 2010 + 2008 + 2012 + 2012 + 2011 = 12058 / 6 = 2009, 666)
 
+promedioPor :: (Serie -> Int) -> Int
 promedioPor parametro = div (sumaListaConParametro parametro series) cantidadDeSeries
 
 -- Inferir los tipos de la función funcionHeavy
+funcionHeavy :: Ord c => (a -> b) -> (a -> b) -> [a] -> c -> c -> [b]
 funcionHeavy a b c d e | d > e     = map a c  
                        | otherwise = map b c 
-
--- funcionHeavy :: Ord c => (a -> b) -> (a -> b) -> [a] -> c -> c -> [b]
