@@ -25,20 +25,20 @@ seriesDeActor = snd
 nombreActor = fst  
 find criterio = head . filter criterio
 
--- Encontrar los datos de una serie en base al nombre
--- > datosDe "4400"
--- ("4400",4,2004,"CBS")
-
+-------------------------------------
 
 type Serie = (String, Int, Int, String)
 
 type Actor = (String, [String])
 
-datosDe :: String -> Serie
-datosDe nombreSerie = find (laSerieTieneEsteNombre nombreSerie) series
+-- Encontrar los datos de una serie en base al nombre
+-- > datosDe "4400"
+-- ("4400",4,2004,"CBS")
 
-laSerieTieneEsteNombre :: String -> Serie -> Bool
-laSerieTieneEsteNombre nombreSerie unaSerie = nombreSerie == (serie unaSerie)
+datosDe :: String -> Serie
+datosDe nombreSerie = find (flip laSerieTieneEsteNombre nombreSerie) series
+
+laSerieTieneEsteNombre unaSerie =  (serie unaSerie ==)
 
 -- Conocer la lista de actores que trabajaron en una serie
 -- >listaDeActoresDe "los soprano"  
@@ -48,11 +48,10 @@ listaDeActoresDe :: String -> [String]
 listaDeActoresDe nombreSerie = (nombresDeActores . filter (actorTrabajoEn nombreSerie)) actores
 
 actorTrabajoEn :: String -> Actor -> Bool
-actorTrabajoEn nombreSerie actor = elem (nombreSerie) (seriesDeActor actor)
+actorTrabajoEn nombreSerie = (elem nombreSerie) . seriesDeActor
 
 nombresDeActores :: [Actor] -> [String]
-nombresDeActores actores = map nombreActor actores
-
+nombresDeActores = map nombreActor
 
 -- Conocer la lista de actores que actuaron en dos series diferentes
 -- >quienesActuaronEn "V" "lost" 
