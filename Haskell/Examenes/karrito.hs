@@ -27,7 +27,8 @@ productos = [ ("HP P1005", 526.5),("Epson C420", 415),
 			  ("Mouse MX500",79)
 			]
 
-type Carrito = ( String, [ (String, Int) ] )
+type Producto = (String, Double)
+type Carrito = ( String, [Producto] )
 
 nombreComprador (nombre, _) = nombre
 productosCarrito (_, productos) = productos
@@ -35,9 +36,8 @@ productosCarrito (_, productos) = productos
 nombreProducto (nombre, _) = nombre
 cantidadDeProducto (_, cantidad) = cantidad
 
+nombreProductosEnCarrito :: Carrito -> [String]
 nombreProductosEnCarrito = map nombreProducto . productosCarrito 
-cantidadProductosEnCarrito = map cantidadDeProducto
-
 
 find criterio = head . filter criterio
 
@@ -45,7 +45,7 @@ find criterio = head . filter criterio
 -- y retorna True si el carrito contiene el producto:
 -- >comproProducto "Torre DVD" carroFede
 -- False
-
+comproProducto :: String -> Carrito -> Bool
 comproProducto nombreProducto = elem nombreProducto . nombreProductosEnCarrito
 
 -- quienesCompraron/1, que recibe un nombre de producto y retorna los
@@ -53,10 +53,13 @@ comproProducto nombreProducto = elem nombreProducto . nombreProductosEnCarrito
 -- >quienesCompraron "Teclado 101"
 -- ["Silvia","Fede"]
 
+quienesCompraron :: String -> [String]
 quienesCompraron nombreProducto = (nombresDeCompradores . filter (compradorCompro nombreProducto)) compras
 
+compradorCompro :: String -> Carrito -> Bool
 compradorCompro nombreProducto = (elem nombreProducto) . nombreProductosEnCarrito
 
+nombresDeCompradores :: [Carrito] -> [String]
 nombresDeCompradores = map nombreComprador
 
 
@@ -68,6 +71,7 @@ nombresDeCompradores = map nombreComprador
 -- >cuantoCompro "Teclado 101" carroFede
 -- 3
 
+cuantoCompro :: String -> Carrito -> Double
 cuantoCompro nombreProducto unCarrito | compradorCompro nombreProducto unCarrito = snd (traerProductoConNombre nombreProducto unCarrito)
 									  | otherwise = 0
 
@@ -82,8 +86,10 @@ productoTieneEsteNombre unProducto = ( nombreProducto unProducto== )
 -- >cantidadVendida "HP P1005"
 -- 0
 
+cantidadVendida :: String -> Double
 cantidadVendida = sum . ventasTotales
 
+ventasTotales :: String -> [Double]
 ventasTotales nombreProducto = map (cuantoCompro nombreProducto) compras
 
 
@@ -91,8 +97,10 @@ ventasTotales nombreProducto = map (cuantoCompro nombreProducto) compras
 -- >queCompro "Fede"
 -- [("Cable HDMI 1.3", 1),("Teclado 101",3)]
 
+queCompro :: String -> [Producto]
 queCompro = productosCarrito . traerUsuarioConNombre
 
+traerUsuarioConNombre :: String -> Carrito
 traerUsuarioConNombre nombreUsuario = find (flip usuarioTieneEsteNombre nombreUsuario) compras
 
 usuarioTieneEsteNombre unNombre = ( nombreComprador unNombre== )
@@ -101,9 +109,11 @@ usuarioTieneEsteNombre unNombre = ( nombreComprador unNombre== )
 -- precioDe/1, que recibe un nombre de producto y retorna el precio unitario de ese producto:
 -- > precioDe "WD TV Live"
 -- 745.3
--- precioDe =  snd . traerProducto
 
+precioDe :: String -> Double
 precioDe = snd . traerProducto
+
+traerProducto :: String -> Producto
 traerProducto nombreProducto = find (flip productoTieneEsteNombre nombreProducto) productos
 
 
@@ -111,10 +121,13 @@ traerProducto nombreProducto = find (flip productoTieneEsteNombre nombreProducto
 -- >gastoDeUsuario "Santiago"
 -- 868.27
 
+gastoDeUsuario :: String -> Double
 gastoDeUsuario nombreUsuario = sum (zipWith (*) (precioPorProducto nombreUsuario) (cantidadPorProducto nombreUsuario))
 
+precioPorProducto :: String -> [Double]
 precioPorProducto = (map precioDe) . (map nombreProducto) . queCompro
 
+cantidadPorProducto :: String -> [Double]
 cantidadPorProducto = map cantidadDeProducto . queCompro
 
 
@@ -123,10 +136,13 @@ cantidadPorProducto = map cantidadDeProducto . queCompro
 -- "Silvia"
 -- En este punto se puede usar recursividad.
 
+mayorGastador :: String
 mayorGastador = traerUsuarioPorGastos maximoGasto
 
+maximoGasto :: Double
 maximoGasto = maximum (map gastoDeUsuario (map nombreComprador compras))
 
+traerUsuarioPorGastos :: Double -> String
 traerUsuarioPorGastos gasto = find (flip usuarioTuvoEsteGasto gasto) (map nombreComprador compras)
 
 usuarioTuvoEsteGasto usuario = (gastoDeUsuario usuario == )
