@@ -89,7 +89,6 @@ listaDeAnios = map anioDeComienzoDe
 estaOrdenada :: [Int] -> Bool
 estaOrdenada [] = True
 estaOrdenada [a] = True
-estaOrdenada [a, b] = a < b
 estaOrdenada (x:y:xs)= x<=y && estaOrdenada (y:xs)
 
 -- Queremos saber cuáles son las series que cumplen un determinado criterio.
