@@ -140,6 +140,6 @@ promedioPor :: (Serie -> Int) -> Int
 promedioPor parametro = div (sumaListaConParametro parametro series) cantidadDeSeries
 
 -- Inferir los tipos de la función funcionHeavy
-funcionHeavy :: Ord c => (a -> b) -> (a -> b) -> [a] -> c -> c -> [b]
+-- funcionHeavy :: Ord c => (a -> b) -> (a -> b) -> [a] -> c -> c -> [b]
 funcionHeavy a b c d e | d > e     = map a c  
                        | otherwise = map b c 
