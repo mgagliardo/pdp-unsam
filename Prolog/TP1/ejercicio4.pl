@@ -1,25 +1,27 @@
-%%%TODAVIA NO FUNCIONAL%%%
-
 precioBaseDeUnLugar(UnLugar, PrecioBase) :-
-	capacidad(UnLugar, SuCapacidad),
-	PrecioBase is SuCapacidad/100.
+	capacidad(UnLugar, Capacidad),
+	PrecioBase is Capacidad/100.
 
-precioFinal(UnLugar, UnVendedor, PrecioFinal) :-
-	vende(UnVendedor, UnLugar, Cometa),
+porcentajeDeComision(PrecioBase, Cometa, Porcentaje) :-
+	Porcentaje is PrecioBase*Cometa/100.
+
+precioFinal(UnLugar, PrecioQuePagaLaPersona, UnVendedor) :-
+	vende(UnVendedor, UnLugar, Comision),
 	precioBaseDeUnLugar(UnLugar, PrecioBase),
-	PrecioFinal is PrecioBase+(PrecioBase*Cometa*0.01).
+	porcentajeDeComision(PrecioBase, Comision, Porcentaje),
+	PrecioQuePagaLaPersona is PrecioBase + Porcentaje.
 
-asistisAdondeVende(UnaPersona, UnVendedor, UnLugar) :-
+pretenciones(fer, UnVendedor, UnLugar):-
+	capacidad(UnLugar, Capacidad),
+	Capacidad =< 50000,
+	vende(UnVendedor, UnLugar, _),
+	UnVendedor \= ticketek.
+
+compra(UnaPersona, UnVendedor, PrecioQuePagaLaPersona) :-
 	asiste(UnaPersona, UnLugar),
-	vende(UnVendedor, UnLugar, Cometa).
+	precioFinal(UnLugar, PrecioQuePagaLaPersona, UnVendedor),
+	UnaPersona \= fer.
 
-compra(UnaPersona, UnVendedor, UnPrecio) :-
-	asistisAdondeVende(UnaPersona, UnVendedor, UnLugar),
-	precioFinal(UnLugar, UnVendedor, UnPrecio).
-
-compra(fer, UnVendedor, UnPrecio) :-
-	asiste(fer, UnLugar),	
-	capacidad(UnLugar, SuCapacidad),
-	SuCapacidad < 50000,
-	UnVendedor \= ticketek,
-	compra(fer, UnVendedor, UnPrecio).
+compra(UnaPersona, UnVendedor, PrecioQuePagaLaPersona) :-
+	precioFinal(UnLugar, PrecioQuePagaLaPersona, UnVendedor),
+	pretenciones(UnaPersona, UnVendedor, UnLugar).
