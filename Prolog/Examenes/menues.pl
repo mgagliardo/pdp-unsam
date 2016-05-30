@@ -143,15 +143,11 @@ caloriasTotales(UnPlato, OtroPlato, OtroPlatoMas, CaloriasTotal) :-
 % ingredientes del plato.
 % P.ej. Disco “tiene todo” para el budín de pan, pero no para la milanesa.
 
-proveedor(disco).
-proveedor(carrefour).
-proveedor(coto).
-
 tieneTodo(Proveedor, Plato) :-
-  proveedor(Proveedor),
-  composicion(Plato, Ingredientes),
+  provee(Proveedor, _),
+  composicion(Plato, _),
   forall(
-        member(ingrediente(Ingrediente, _), Ingredientes),
+        componente(Plato, ingrediente(Ingrediente, _)),
         provee(Proveedor, Ingrediente)
         ).
 
@@ -162,24 +158,19 @@ tieneTodo(Proveedor, Plato) :-
 numeroIngPopular(3).
 
 ingredientePopular(Ingrediente) :-
+  componente(_, ingrediente(Ingrediente, _)),
   encontrarPlatosQueContienenIngrediente(Platos, Ingrediente),
   cantidadDePlatosEsPopular(Platos).
 
 encontrarPlatosQueContienenIngrediente(Platos, Ingrediente) :-
   findall(Plato,
-          platoContieneIngrediente(Plato, Ingrediente),
+            componente(Plato, ingrediente(Ingrediente, _)),
           Platos).
-
-platoContieneIngrediente(Plato, Ingrediente) :-
-  componente(_, Ingrediente),
-  composicion(Plato, Ingredientes),
-  member(ingrediente(Ingrediente, _), Ingredientes).
 
 cantidadDePlatosEsPopular(Platos) :-
   length(Platos, Cantidad),
   numeroIngPopular(Num),
   Cantidad > Num.
-
 
 % h. cantidadTotal/3
 % Relaciona un ingrediente, una lista de pares (plato, cantidad), y la cantidad total de unidades
@@ -189,13 +180,16 @@ cantidadDePlatosEsPopular(Platos) :-
 % la única respuesta esperada es 21 (15 de las milanesas y 6 de los budines, la ensalada mixta
 % no suma).
 
-% TODO
-% cantidadTotal(Ingrediente, ListaPares, CantidadTotal) :-
-%   encontrarPlatosQueContienenIngrediente(Platos, Ingrediente),
-%   cuantoIngredienteTienen(Platos, LoQueTengo),
-%   cuantoFalta(LoQueTengo, CantidadTotal).
-%
-% cuantoFalta(Cantidad) :-
-%     findall(Cosa, necesita(_, Cosa), Cosas),
-%     list_to_set(Cosas, CosasUnicas),
-%     length(CosasUnicas, Cantidad).
+cantidadTotal(Ingrediente, ListaDePlatos, CantidadTotal) :-
+  findall(Cantidad,
+          ingredientesTotalesDeUnPlato(Ingrediente, ListaDePlatos, Cantidad),
+          Cantidades),
+  sumlist(Cantidades, CantidadTotal).
+
+ingredientesTotalesDeUnPlato(Ingrediente, ListaDePlatos, Cantidad) :-
+  member(plato(NombrePlato, CantidadPlato), ListaDePlatos),
+  platoTieneIngrediente(Ingrediente, NombrePlato, CantidadDelIngrediente),
+  Cantidad is CantidadDelIngrediente * CantidadPlato.
+
+platoTieneIngrediente(Ingrediente, NombrePlato, CantidadDelIngrediente) :-
+  componente(NombrePlato, ingrediente(Ingrediente, CantidadDelIngrediente)).
